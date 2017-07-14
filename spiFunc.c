@@ -3,8 +3,8 @@
 #include <wiringPi.h>
 #include <wiringPiSPI.h>
 
-#define READ 0x80;
-#define WRITE 0x00;
+#define READ 0x80
+#define WRITE 0x00
 
 unsigned char data[4] = {0, 0, 0, 0};
 
@@ -52,7 +52,7 @@ unsigned char MAttached(int ss)
 	else return 0;
 }
 
-void initialzeXGM(int ssAG, int ssM)
+void initializeXGM(int ssAG, int ssM)
 {
 	// ACCELEROMETER and GYROSCOPE
 
@@ -94,14 +94,36 @@ void initialzeXGM(int ssAG, int ssM)
 	data[1] = 0x7C;
 	wiringPiSPIDataRW(ssM, data, 2);
 
-	//
+	// 
+
+}
 
 
 
 
 int readAccZ(int ss)
 {
+	signed int AccelerometerZ;
 
+	// Read first Byte
+	data[0] = (READ | 0x2C);
+	data[1] = 0;
+
+	wiringPiSPIDataRW(ss, data, 2);
+
+	// Store value
+	AccelerometerZ = data[1];
+
+	// Read second Byte
+	data[0] = (READ | 0x2D);
+	data[1] = 0;
+
+	wiringPiSPIDataRW(ss, data, 2);
+
+	// Shift new data left 8 bits, OR with previous data
+	AccelerometerZ = AccelerometerZ | (data[1] << 8);
+
+	return AccelerometerZ;
 }
 
 

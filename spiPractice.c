@@ -46,6 +46,8 @@ int main(void)
 
 	setUpSPI(CHANNEL, BAUD_RATE);
 
+	initializeXGM(CHANNEL, 1);
+
 	ret = XGAttached(CHANNEL);
 
 	printf("Is the Acc/Gyro attached: %d \n", ret);
@@ -56,5 +58,14 @@ int main(void)
 
 	printf("Is the Mag attached: %d \n", ret);
 
+	int i;
+	for(i=0; i < 100; i++)
+	{
+		value = readAccZ(CHANNEL);
+
+		printf("Acc-z = %d \n", value);
+
+		delay(500);
+	}
 	return 0;
 }
