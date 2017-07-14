@@ -4,7 +4,7 @@
 #include <wiringPiSPI.h>
 
 #define READ 0x80
-#define WRITE 0x00
+#define WRITE 0x7F
 
 unsigned char data[4] = {0, 0, 0, 0};
 
@@ -52,6 +52,11 @@ unsigned char MAttached(int ss)
 	else return 0;
 }
 
+/************************************************************************************
+void initializeXGM(int ssAG, int ssM)
+	Inititalizes all the registers with proper defaults. Necessary to use
+	magnetometer with SPI.
+************************************************************************************/
 void initializeXGM(int ssAG, int ssM)
 {
 	// ACCELEROMETER and GYROSCOPE
@@ -94,13 +99,28 @@ void initializeXGM(int ssAG, int ssM)
 	data[1] = 0x7C;
 	wiringPiSPIDataRW(ssM, data, 2);
 
-	// 
+	// CTRL_REG2_M (21h) - 0000 0000
+	data[0] = 0x21;
+	data[1] = 0x00;
 
+	// CTRL_REG3_M (22h) - 1000 0100
+	data[0] = 0x22;
+	data[1] = 0x84;
+
+	// CTRL_REG4_M (23h) - 0000 1000
+	data[0] = 0x23;
+	data[1] = 0x08;
+
+	// CTRL_REG5_M (24h) - 0000 0000
+	data[0] = 0x24;
+	data[1] = 0x00;
 }
 
 
-
-
+/************************************************************************************
+int readAccZ(int ss)
+	Reads the data on the Z axis of the Accelerometer.
+************************************************************************************/
 int readAccZ(int ss)
 {
 	signed int AccelerometerZ;
@@ -126,9 +146,327 @@ int readAccZ(int ss)
 	return AccelerometerZ;
 }
 
+/************************************************************************************
+int readAccY(int ss)
+	Reads the data on the Y axis of the accelerometer.	
+/************************************************************************************
+int readAccY(int ss)
+{
+	signed int AccelerometerY;
 
+	// Read first Byte
+	data[0] = (READ | 0x2A);
+	data[1] = 0;
 
+	wiringPiSPIDataRW(ss, data, 2);
 
+	// Store value
+	AccelerometerY = data[1];
+
+	// Read second Byte
+	data[0] = (READ | 0x2B);
+	data[1] = 0;
+
+	wiringPiSPIDataRW(ss, data, 2);
+
+	// Shift new data left 8 bits, OR with previous data
+	AccelerometerY = AccelerometerY | (data[1] << 8);
+
+	return AccelerometerY;
+}
+
+/************************************************************************************
+int readAccX(int ss)
+	Reads the data on the X axis of the accelerometer.
+************************************************************************************/
+int readAccX(int ss)
+{
+	signed int AccelerometerX;
+
+	// Read first Byte
+	data[0] = (READ | 0x28);
+	data[1] = 0;
+
+	wiringPiSPIDataRW(ss, data, 2);
+
+	// Store value
+	AccelerometerX = data[1];
+
+	// Read second Byte
+	data[0] = (READ | 0x29);
+	data[1] = 0;
+
+	wiringPiSPIDataRW(ss, data, 2);
+
+	// Shift new data left 8 bits, OR with previous data
+	AccelerometerX = AccelerometerX | (data[1] << 8);
+
+	return AccelerometerX;
+}
+
+/************************************************************************************
+int readGyroZ(int ss)
+	Reads the data on the Z axis of the gyroscope.
+************************************************************************************/
+int readGyroZ(int ss)
+{
+	signed int GyroscopeZ;
+
+	// Read first Byte
+	data[0] = (READ | 0x1C);
+	data[1] = 0;
+
+	wiringPiSPIDataRW(ss, data, 2);
+
+	// Store value
+	GyroscopeZ = data[1];
+
+	// Read second Byte
+	data[0] = (READ | 0x1D);
+	data[1] = 0;
+
+	wiringPiSPIDataRW(ss, data, 2);
+
+	// Shift new data left 8 bits, OR with previous data
+	GyroscopeZ = GyroscopeZ | (data[1] << 8);
+
+	return GyroscopeZ;
+}
+
+/************************************************************************************
+int readGyroY(int ss)
+	Reads the data on the Y axis of the gyroscope.
+************************************************************************************/
+int readGyroY(int ss)
+{
+	signed int GyroscopeY;
+
+	// Read first Byte
+	data[0] = (READ | 0x1A);
+	data[1] = 0;
+
+	wiringPiSPIDataRW(ss, data, 2);
+
+	// Store value
+	GyroscopeY = data[1];
+
+	// Read second Byte
+	data[0] = (READ | 0x1B);
+	data[1] = 0;
+
+	wiringPiSPIDataRW(ss, data, 2);
+
+	// Shift new data left 8 bits, OR with previous data
+	GyroscopeY = GyroscopeY | (data[1] << 8);
+
+	return GyroscopeY;
+}
+
+/************************************************************************************
+int readGyroX(int ss)
+	Reads the data on the X axis of the gyroscope.
+************************************************************************************/
+int readGyroX(int ss)
+{
+	signed int GyroscopeX;
+
+	// Read first Byte
+	data[0] = (READ | 0x18);
+	data[1] = 0;
+
+	wiringPiSPIDataRW(ss, data, 2);
+
+	// Store value
+	GyroscopeX = data[1];
+
+	// Read second Byte
+	data[0] = (READ | 0x19);
+	data[1] = 0;
+
+	wiringPiSPIDataRW(ss, data, 2);
+
+	// Shift new data left 8 bits, OR with previous data
+	GyroscopeX = GyroscopeX | (data[1] << 8);
+
+	return GyroscopeX;
+}
+
+/************************************************************************************
+int readMagZ(int ss)
+	Reads the data on the Z axis the magnetometer.
+************************************************************************************/
+int readMagZ(int ss)
+{
+	signed int MagnetometerZ;
+
+	// Read first Byte
+	data[0] = (READ | 0x2C);
+	data[1] = 0;
+
+	wiringPiSPIDataRW(ss, data, 2);
+
+	// Store value
+	MagnetometerZ = data[1];
+
+	// Read second Byte
+	data[0] = (READ | 0x2D);
+	data[1] = 0;
+
+	wiringPiSPIDataRW(ss, data, 2);
+
+	// Shift new data left 8 bits, OR with previous data
+	MagnetometerZ = MagnetometerZ | (data[1] << 8);
+
+	return MagnetometerZ;
+}
+
+/************************************************************************************
+int readMagY(int ss)
+	Reads the data on the Y axis the magnetometer.
+************************************************************************************/
+int readMagY(int ss)
+{
+	signed int MagnetometerY;
+
+	// Read first Byte
+	data[0] = (READ | 0x2A);
+	data[1] = 0;
+
+	wiringPiSPIDataRW(ss, data, 2);
+
+	// Store value
+	MagnetometerY = data[1];
+
+	// Read second Byte
+	data[0] = (READ | 0x2B);
+	data[1] = 0;
+
+	wiringPiSPIDataRW(ss, data, 2);
+
+	// Shift new data left 8 bits, OR with previous data
+	MagnetometerY = MagnetometerY | (data[1] << 8);
+
+	return MagnetometerY;
+}
+
+/************************************************************************************
+int readMagX(int ss)
+	Reads the data on the Z axis the magnetometer.
+************************************************************************************/
+int readMagX(int ss)
+{
+	signed int MagnetometerX;
+
+	// Read first Byte
+	data[0] = (READ | 0x28);
+	data[1] = 0;
+
+	wiringPiSPIDataRW(ss, data, 2);
+
+	// Store value
+	MagnetometerX = data[1];
+
+	// Read second Byte
+	data[0] = (READ | 0x29);
+	data[1] = 0;
+
+	wiringPiSPIDataRW(ss, data, 2);
+
+	// Shift new data left 8 bits, OR with previous data
+	MagnetometerX = MagnetometerX | (data[1] << 8);
+
+	return MagnetometerX;
+}
+
+/************************************************************************************
+void unitValues(int ssAG, int ssM)
+	Prints the units for the three sensors.
+************************************************************************************/
+void unitValues(int ssAG, int ssM)
+{
+	int selection;
+
+	// Read accelerometer units
+	data[0] = (READ | 0x20);
+	data[1] = 0x00;
+	selection = wiringPiSPIDataRW(ssAG, data, 2);
+
+	switch(selection & 0x18)
+	{
+		case 0x00:
+			printf("Accelerometer: +-2g\n");
+			break;
+
+		case 0x08:
+			printf("Accelerometer: +-16g\n");
+			break;
+
+		case 0x10:
+			printf("Accelerometer: +-4g\n");
+			break;
+
+		case 0x18:
+			printf("Accelerometer: +-8g\n");
+			break;
+
+		default:
+			printf("Error gathering accelerometer data...\n");
+			break;
+	}
+
+	// Read gyroscope units
+	data[0] = (READ | 0x10);
+	data[1] = 0x00;
+	selection = wiringPiSPIDataRW(ssAG, data, 2);
+
+	switch(selection & 0x18)
+	{
+		case 0x00:
+			printf("Gyroscope: 245dps\n");
+			break;
+
+		case 0x08:
+			printf("Gyroscope: 500dps\n");
+			break;
+
+		case 0x18:
+			printf("Gyroscope: 2000dps\n");
+			break;
+
+		default:
+			printf("Error gathering gyroscope data...\n");
+			break;
+	}
+
+	// Read magnetometer units
+	data[0] = (READ | 0x21);
+	data[1] = 0x00;
+	selection = wiringPiSPIDataRW(ssM, data, 2);
+
+	switch(selection & 0x60)
+	{
+		case 0x00:
+			printf("Magnetometer: +-4 gauss\n");
+			break;
+
+		case 0x20:
+			printf("Magnetometer: +-8 gauss\n");
+			break;
+
+		case 0x40:
+			printf("Magnetometer: +-12 gauss\n");
+			break;
+
+		case 0x60:
+			printf("Magnetometer: +-16 gauss\n");
+			break;
+
+		default:
+			printf("Error gathering magnetometer data...\n");
+			break;
+	}
+	
+}
 
 
 
